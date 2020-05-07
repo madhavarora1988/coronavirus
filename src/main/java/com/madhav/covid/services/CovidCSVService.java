@@ -9,8 +9,9 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
 
@@ -29,7 +30,7 @@ public class CovidCSVService {
         InputStream is = url.openStream();
         Scanner scanner = new Scanner(is).useDelimiter("\\A");
         String result = scanner.hasNext() ? scanner.next() : "";
-        // System.out.println("value :" + result);
+        String currentDate = getCurrentDate();
 
         Reader in = new StringReader(result);
         Iterable<CSVRecord> records = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(in);
@@ -38,7 +39,7 @@ public class CovidCSVService {
             String country = record.get("Country/Region");
             String latitude = record.get("Lat");
             String longitude = record.get("Long");
-            String confirmedCases = record.get("4/26/20");
+            String confirmedCases = record.get(currentDate);
 
             CovidCSV covidCSV = CovidCSV.builder()
                     .state(state)
@@ -50,13 +51,16 @@ public class CovidCSVService {
             repository.saveAndFlush(covidCSV);
 
         }
-
-
-
-
     }
 
     public List<CovidCSV> getData(){
         return repository.findAll();
+    }
+
+
+    private String getCurrentDate(){
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("M/d/yy");
+        LocalDateTime now = LocalDateTime.now().minusDays(1);
+        return dateTimeFormatter.format(now);
     }
 }
