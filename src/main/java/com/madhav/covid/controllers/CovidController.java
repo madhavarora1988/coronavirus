@@ -1,5 +1,6 @@
 package com.madhav.covid.controllers;
 
+import com.madhav.covid.models.Covid;
 import com.madhav.covid.models.CovidCSV;
 import com.madhav.covid.services.CovidCSVService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,7 @@ public class CovidController {
     private CovidCSVService service;
 
     @GetMapping("/covid-data")
-    public List<CovidCSV> getCovidData(){
+    public List<Covid> getCovidData(){
 
         return service.getData();
     }
